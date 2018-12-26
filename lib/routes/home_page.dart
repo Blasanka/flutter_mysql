@@ -13,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   Future<List> _fetchData() async {
@@ -27,18 +26,37 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: FutureBuilder<List> (
-        future: fetchData(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
-          return snapshot.hasData ? Text(snapshot.data[0]['title']) : SizedBox(),
-        }
-      ),
+      body: FutureBuilder<List>(
+          future: _fetchData(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) print(snapshot.error);
+            return snapshot.hasData
+                ? _buildItem(snapshot.data)
+                : Text('No data found!');
+          }),
       floatingActionButton: FloatingActionButton(
-        onPressed: _login,
+        onPressed: _fetchData,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget _buildItem(List list) {
+    return ListView.builder(
+      itemCount: list.length,
+      itemBuilder: (BuildContext context, int index) {
+        return ListTile(
+          leading: CircleAvatar(
+            child: Container(
+              color: Colors.grey,
+              child: Text(list[index]['title'].substring(0, 1)),
+            ),
+          ),
+          title: Text(list[index]['title']),
+          subtitle: Text(list[index]['description']),
+        );
+      },
     );
   }
 }

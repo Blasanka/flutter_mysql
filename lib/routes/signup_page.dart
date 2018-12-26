@@ -29,26 +29,19 @@ class _SignupPageState extends State<SignupPage> {
 
   void _signup() async {
     if (_validateAndSave()) {
-      await http.post('http://10.0.2.2/fluttertest/signup.php',
-          body: {
-            "username": _username,
-            "email": _email,
-            "password": _password
-          });
-
-      // var dbUser = json.decode(response.body);
-      // if (dbUser.length != 0) {
-      //   Navigator.of(context).pushReplacementNamed('/Home');
-      // } else {
-      //   _scaffoldKey.currentState
-      //       .showSnackBar(new SnackBar(content: new Text('Try again!')));
-      // }
+      await http.post('http://10.0.2.2/fluttertest/signup.php', body: {
+        "username": _username,
+        "email": _email,
+        "password": _password,
+        "role": "member",
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -90,8 +83,8 @@ class _SignupPageState extends State<SignupPage> {
                     child: RaisedButton(
                       child: Text('Sign up'),
                       onPressed: () {
- 			 _signup();
-		      },
+                        _signup();
+                      },
                     ),
                   ),
                 ],
