@@ -24,18 +24,19 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.title),
       ),
       body: FutureBuilder<List> (
-        future: fetchData(),
+        future: _fetchData(),
         builder: (context, snapshot) {
           if (snapshot.hasError) print(snapshot.error);
-          return snapshot.hasData ? Text(snapshot.data[0]['title']) : SizedBox(),
+          return snapshot.hasData ? Text(snapshot.data[0]['title']) : SizedBox();
         }
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _login,
+        onPressed: null,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
