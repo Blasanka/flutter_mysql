@@ -76,7 +76,9 @@ class _LoginPageState extends State<LoginPage> {
                   Expanded(
                     child: RaisedButton(
                       child: Text('Log in'),
-                      onPressed: _login,
+                      onPressed: () {
+                        _login();
+                      },
                     ),
                   ),
                 ],
