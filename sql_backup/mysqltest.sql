@@ -62,7 +62,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `password`, `name`) VALUES
-(1, 'bla@gmail.com', '123456', '');
+(1, 'bla@gmail.com', '$2b$10$X8i6.Lcm2xBFXs4wERUw4ue1u4HGQar1bto6TaR7djdIYo05Eo1Oy', '');
 
 --
 -- Indexes for dumped tables
