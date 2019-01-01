@@ -2,9 +2,7 @@
 
     $connection = new mysqli("localhost", "root", "", "mysqltest");
 
-    if ($connection) {
-        
-    } else {
+    if (!$connection) {
         echo "connection failed!";
         exit();
     }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-Widget appTextField(String labelText, IconData icon, {isObscure = false, Function onSave, Function validate}) {
+Widget appTextField(String labelText, IconData icon, {isObscure = false, TextInputType inputType, Function onSave, Function validate}) {
   return TextFormField(
+    keyboardType: inputType ?? TextInputType.text,
     obscureText: isObscure,
     textAlign: TextAlign.center,
     decoration: InputDecoration(
