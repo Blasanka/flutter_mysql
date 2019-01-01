@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
       fetchAuthenticatedUser(_userCred).then((value) {
         print(value);
         if (value.length == 1) {
-          Navigator.of(_context).pushReplacementNamed('/Home');
+          Navigator.of(_context).pushReplacementNamed('/Home', result: _userCred.email);
         } else {
           _scaffoldKey.currentState
               .showSnackBar(new SnackBar(content: new Text('No user found!')));

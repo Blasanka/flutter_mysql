@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.3
+-- version 4.8.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 01, 2019 at 07:20 PM
+-- Generation Time: Jan 01, 2019 at 09:11 PM
 -- Server version: 10.1.33-MariaDB
 -- PHP Version: 7.2.6
 
@@ -30,9 +30,19 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `myworks` (
   `id` int(11) NOT NULL,
-  `title` int(11) NOT NULL,
-  `description` int(11) NOT NULL
+  `title` varchar(250) NOT NULL,
+  `description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `myworks`
+--
+
+INSERT INTO `myworks` (`id`, `title`, `description`) VALUES
+(0, 'Vehicle Rent System desktop application', 'This application I built using Java with Swing framework for a company to make their works automated.'),
+(1, 'Mobile app for a company', 'This is a classified app that I have created in my office'),
+(2, 'Angular MyPal web application', 'This web app is created using Angular framework with Angular material and as backend I used Node.js and mongoDB'),
+(3, 'Vehicle Rent System desktop application', 'This application I built using Java with Swing framework for a company to make their works automated.');
 
 -- --------------------------------------------------------
 
@@ -59,17 +69,17 @@ INSERT INTO `users` (`id`, `email`, `password`, `name`) VALUES
 --
 
 --
+-- Indexes for table `myworks`
+--
+ALTER TABLE `myworks`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
-
---
--- Indexes for table `myworks`
---
-ALTER TABLE `myworks`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables

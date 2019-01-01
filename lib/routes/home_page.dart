@@ -1,7 +1,8 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/material.dart';
+import 'package:mysqltest/services/fetch_works.dart';
+import 'package:mysqltest/widgets/app_background.dart';
+import 'package:mysqltest/widgets/app_gradient.dart';
+import 'package:mysqltest/widgets/work_card.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -15,11 +16,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  Future<List> _fetchData() async {
-    final response = await http.get('http://10.0.2.2/fluttertest/myworks.php');
-    return json.decode(response.body);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,14 +23,23 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: FutureBuilder<List>(
-          future: _fetchData(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) print(snapshot.error);
-            return snapshot.hasData
-                ? _buildItem(snapshot.data)
-                : Text('No data found!');
-          }),
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          backgroundImage,
+          Container(
+            decoration: gradient,
+            child: FutureBuilder<List>(
+                future: fetchData(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) return Text('No data found!');
+                  return snapshot.hasData
+                      ? _buildItem(snapshot.data)
+                      : Center(child: CircularProgressIndicator());
+                }),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: null,
         tooltip: 'Add post',
@@ -45,18 +50,10 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildItem(List list) {
     return ListView.builder(
+      shrinkWrap: true,
       itemCount: list.length,
       itemBuilder: (BuildContext context, int index) {
-        return ListTile(
-          leading: CircleAvatar(
-            child: Container(
-              color: Colors.grey,
-              child: Text(list[index]['title'].substring(0, 1)),
-            ),
-          ),
-          title: Text(list[index]['title']),
-          subtitle: Text(list[index]['description']),
-        );
+        return WorkCard(title: list[index]['title'] ?? '', description: list[index]['description'] ?? '');
       },
     );
   }
