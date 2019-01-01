@@ -1,6 +1,6 @@
 <?php
 
-    include("conn.php");
+include("conn.php");
 
     $name = $_POST['name'];
     $email = $_POST['email'];

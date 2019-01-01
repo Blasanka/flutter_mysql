@@ -1,5 +1,5 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.1
+-- version 4.8.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
@@ -64,6 +64,12 @@ INSERT INTO `users` (`id`, `email`, `password`, `name`) VALUES
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `myworks`
+--
+ALTER TABLE `myworks`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
