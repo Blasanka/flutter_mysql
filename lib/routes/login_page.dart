@@ -1,25 +1,38 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/material.dart';
+import 'package:mysqltest/services/login_service.dart';
+import 'package:mysqltest/util/user_credentials.dart';
+import 'package:mysqltest/util/validation.dart';
+import 'package:mysqltest/widgets/app_background.dart';
+import 'package:mysqltest/widgets/app_button.dart';
+import 'package:mysqltest/widgets/app_gradient.dart';
+import 'package:mysqltest/widgets/app_logo.dart';
+import 'package:mysqltest/widgets/app_textfield.dart';
+import 'package:mysqltest/widgets/clickable_text.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final formKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  BuildContext _context;
+  GlobalKey<FormState> _formKey;
+  GlobalKey<ScaffoldState> _scaffoldKey;
 
-  String _username, _password;
+  UserCredentials _userCred;
+  CredentialValidator _validator;
+
+  @override
+  initState() {
+    _formKey = GlobalKey<FormState>();
+    _scaffoldKey = new GlobalKey<ScaffoldState>();
+    _validator = CredentialValidator();
+    _userCred = UserCredentials();
+    super.initState();
+  }
 
   bool _validateAndSave() {
-    final form = formKey.currentState;
+    final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
       return true;
@@ -27,83 +40,88 @@ class _LoginPageState extends State<LoginPage> {
     return false;
   }
 
-  void _login() async {
+  void _doLogin() {
     if (_validateAndSave()) {
-      final response = await http.post('http://10.0.2.2/fluttertest/login.php',
-          body: {"username": _username, "password": _password});
-
-      var dbUser = json.decode(response.body);
-      if (dbUser.length != 0) {
-        Navigator.of(context).pushReplacementNamed('/Home');
-      } else {
-        _scaffoldKey.currentState
-            .showSnackBar(new SnackBar(content: new Text('No user found!')));
-      }
+      fetchAuthenticatedUser(_userCred).then((value) {
+        print(value);
+        if (value.length == 1) {
+          Navigator.of(_context).pushReplacementNamed('/Home');
+        } else {
+          _scaffoldKey.currentState
+              .showSnackBar(new SnackBar(content: new Text('No user found!')));
+        }
+      });
     }
+  }
+
+  Widget _loginForm() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 30.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: <Widget>[
+            appTextField(
+              'Email',
+              Icons.person,
+              inputType: TextInputType.emailAddress,
+              onSave: _userCred.setEmail,
+              validate: _validator.validateEmail,
+            ),
+            appTextField(
+              'Password',
+              Icons.lock,
+              isObscure: true,
+              onSave: _userCred.setPassword,
+              validate: _validator.validatePassword,
+            ),
+            appButton('Login', onPressed: _doLogin),
+            clickableText("Forgot your password?", onTap: () {}),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreateAccount() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text("Don't have an account?"),
+        clickableText("Create one",
+            onTap: () =>
+                Navigator.of(_context).pushReplacementNamed('/Signup')),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Username",
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          backgroundImage,
+          Container(
+            decoration: gradient,
+            child: ListView(
+              itemExtent: MediaQuery.of(context).size.height - 30,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(height: 15.0),
+                    buildLogo(),
+                    _loginForm(),
+                    _buildCreateAccount(),
+                  ],
                 ),
-                onSaved: (value) => _username = value,
-                validator: (value) => (value == "") ? "Cannot be empty" : null,
-              ),
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                ),
-                onSaved: (value) => _password = value,
-                validator: (value) => (value == "") ? "Cannot be empty" : null,
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: RaisedButton(
-                      child: Text('Log in'),
-                      onPressed: () {
-                        _login();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Haven't created an acount, yet ?",
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              InkWell(
-                onTap: () => Navigator.of(context).pushReplacementNamed('/Signup'),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Create an account",
-                    style: TextStyle(color: Colors.blueAccent),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

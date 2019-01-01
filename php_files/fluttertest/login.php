@@ -2,11 +2,11 @@
 
     include("conn.php");
 
-    $username = $_POST['username'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
 
     $queryResult = $connection->
-        query("SELECT * FROM admin WHERE username ='". $username . "' AND password = '". $password . "'");
+        query("SELECT * FROM users WHERE email ='". $email . "' AND password = '". $password . "'");
 
     $result = array();
 
