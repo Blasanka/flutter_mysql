@@ -1,6 +1,15 @@
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:mysqltest/services/signup_service.dart';
+import 'package:mysqltest/util/user_credentials.dart';
+import 'package:mysqltest/util/validation.dart';
+import 'package:mysqltest/widgets/app_background.dart';
+import 'package:mysqltest/widgets/app_button.dart';
+import 'package:mysqltest/widgets/app_gradient.dart';
+import 'package:mysqltest/widgets/app_logo.dart';
+import 'package:mysqltest/widgets/app_textfield.dart';
+import 'package:mysqltest/widgets/clickable_text.dart';
 
 class SignupPage extends StatefulWidget {
   SignupPage({Key key, this.title}) : super(key: key);
@@ -12,10 +21,21 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final _formKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  BuildContext _context;
+  GlobalKey<FormState> _formKey;
+  GlobalKey<ScaffoldState> _scaffoldKey;
 
-  String _username, _password, _email;
+  UserCredentials _userCred;
+  CredentialValidator _validator;
+
+  @override
+  initState() {
+    _formKey = GlobalKey<FormState>();
+    _scaffoldKey = new GlobalKey<ScaffoldState>();
+    _validator = CredentialValidator();
+    _userCred = UserCredentials();
+    super.initState();
+  }
 
   bool _validateAndSave() {
     final form = _formKey.currentState;
@@ -26,68 +46,51 @@ class _SignupPageState extends State<SignupPage> {
     return false;
   }
 
-  void _signup() async {
+  void _doSignup() {
     if (_validateAndSave()) {
-      await http.post('http://10.0.2.2/fluttertest/signup.php', body: {
-        "username": _username,
-        "email": _email,
-        "password": _password,
-        "role": "member",
+      signupUser(_userCred).then((value) {
+        if (value) {
+          Navigator.of(_context)
+              .pushReplacementNamed('/Home', result: _userCred.username);
+        } else {
+          _scaffoldKey.currentState
+              .showSnackBar(new SnackBar(content: new Text('Try again!')));
+        }
       });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SingleChildScrollView(
+  Widget signupForm() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 30.0),
+      child: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Username",
-                ),
-                onSaved: (value) => _username = value,
-                validator: (String value) =>
-                    value == "" ? "Cannot be empty" : null,
+              appTextField(
+                'Username',
+                Icons.person,
+                onSave: _userCred.setUsername,
+                validate: _validator.validateUsername,
               ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Email",
-                ),
-                onSaved: (value) => _email = value,
-                validator: (String value) =>
-                    value == "" ? "Cannot be empty" : null,
+              appTextField(
+                'Email',
+                Icons.person,
+                inputType: TextInputType.emailAddress,
+                onSave: _userCred.setEmail,
+                validate: _validator.validateEmail,
               ),
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                ),
-                onSaved: (value) => _password = value,
-                validator: (String value) =>
-                    value == "" ? "Cannot be empty" : null,
+              appTextField(
+                'Password',
+                Icons.lock,
+                isObscure: true,
+                onSave: _userCred.setPassword,
+                validate: _validator.validatePassword,
               ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: RaisedButton(
-                      child: Text('Sign up'),
-                      onPressed: () {
-                        _signup();
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              appButton("Sign up", onPressed: _doSignup),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -95,21 +98,41 @@ class _SignupPageState extends State<SignupPage> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              InkWell(
-                onTap: () =>
-                    Navigator.of(context).pushReplacementNamed('/Login'),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Log in",
-                    style: TextStyle(color: Colors.blueAccent),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
+              clickableText("Log in",
+                  onTap: () =>
+                      Navigator.of(context).pushReplacementNamed('/Login')),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          backgroundImage,
+          Container(
+            decoration: gradient,
+            child: ListView(
+              itemExtent: MediaQuery.of(context).size.height - 30,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(height: 15.0),
+                    buildLogo(),
+                    signupForm(),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
