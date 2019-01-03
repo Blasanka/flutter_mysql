@@ -110,6 +110,7 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
       key: _scaffoldKey,
       body: Stack(
